@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Azure Supply Chain Agent</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">A</div>
+          <div>
+            <strong>Azure Supply Chain</strong>
+            <small>Agent</small>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a href="#" class="active">Resumen</a>
+          <a href="#pedidos">Pedidos sugeridos</a>
+          <a href="#bodega">Disponibilidad</a>
+        </nav>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Panel logístico</p>
+            <h1>Azure Supply Chain Agent</h1>
+          </div>
+
+          <button id="refreshButton" class="primary-button" type="button">
+            Actualizar datos
+          </button>
+        </header>
+
+        <section id="statusBanner" class="status-banner hidden"></section>
+
+        <section class="summary-grid" id="summaryGrid">
+          <article class="stat-card">
+            <span>Número de tiendas</span>
+            <strong id="tiendasValue">--</strong>
+          </article>
+          <article class="stat-card">
+            <span>Número de productos</span>
+            <strong id="productosValue">--</strong>
+          </article>
+          <article class="stat-card">
+            <span>Necesidad total de reposición</span>
+            <strong id="necesidadValue">--</strong>
+          </article>
+          <article class="stat-card">
+            <span>Inventario disponible en bodega</span>
+            <strong id="bodegaValue">--</strong>
+          </article>
+          <article class="stat-card">
+            <span>Productos con faltantes</span>
+            <strong id="faltantesValue">--</strong>
+          </article>
+        </section>
+
+        <section class="panel" id="pedidos">
+          <div class="section-header">
+            <h2>Pedidos sugeridos</h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tienda</th>
+                  <th>Código</th>
+                  <th>Producto</th>
+                  <th>Inventario actual</th>
+                  <th>Demanda proyectada</th>
+                  <th>Pedido sugerido</th>
+                  <th>Cantidad surtible</th>
+                </tr>
+              </thead>
+              <tbody id="pedidosTableBody">
+                <tr>
+                  <td colspan="7" class="empty-state">Cargando datos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" id="bodega">
+          <div class="section-header">
+            <h2>Disponibilidad en bodega</h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Inventario disponible</th>
+                  <th>Necesidad total</th>
+                  <th>Cantidad surtible</th>
+                  <th>Cantidad faltante</th>
+                  <th>Suficiencia</th>
+                </tr>
+              </thead>
+              <tbody id="bodegaTableBody">
+                <tr>
+                  <td colspan="6" class="empty-state">Cargando datos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel chat-panel" id="chat">
+          <div class="section-header">
+            <h2>Chat con el agente</h2>
+          </div>
+
+          <div id="chatMessages" class="chat-messages" aria-live="polite">
+            <div class="message assistant">
+              <strong>Agente:</strong>
+              <span>¿En qué puedo ayudarte con la operación logística?</span>
+            </div>
+          </div>
+
+          <form id="chatForm" class="chat-form">
+            <label class="sr-only" for="chatInput">Escribe un mensaje</label>
+            <textarea id="chatInput" rows="3" placeholder="Escribe tu pregunta para supply-chain-planner..."></textarea>
+            <div class="chat-actions">
+              <button id="sendChatButton" type="submit" class="primary-button">
+                Enviar
+              </button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

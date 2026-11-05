@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# Variables de entorno reales y archivos de configuración local
+.env
+.env.*
+!.env.example
+*.local
+.local/
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.secret
+*.token
+credentials.json
+secrets.json
+
+# Cachés y artefactos de herramientas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Editor y sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Archivos locales y temporales
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.orig
+
+# Archivos generados y reportes locales
+salida/
+!salida/.gitkeep
+
+# Archivos de trabajo locales que no deben publicarse
+*.sqlite
+*.db
+*.bak
