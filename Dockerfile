@@ -15,4 +15,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["python", "src/agente/mcp_server.py", "--transport", "streamable-http"]
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
