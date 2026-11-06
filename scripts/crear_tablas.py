@@ -60,6 +60,26 @@ def crear_tablas():
         print("Tablas creadas o validadas correctamente.")
 
 
+def actualizar_nombres_productos():
+    nombres = {
+        "P-1001": "Chocolate",
+        "P-1002": "Vainilla",
+        "P-1003": "Café",
+        "P-1004": "Fresa",
+        "P-1005": "Pistache",
+    }
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            for codigo, nombre in nombres.items():
+                cur.execute(
+                    "UPDATE productos SET nombre = %s WHERE codigo = %s",
+                    (nombre, codigo),
+                )
+        conn.commit()
+    print("Nombres de productos actualizados para Gelato Supply Chain.")
+
+
 def cargar_datos_ficticios():
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -80,11 +100,11 @@ def cargar_datos_ficticios():
                 )
 
             productos = [
-                ("P-1001", "Arroz 1kg", "cajas"),
-                ("P-1002", "Frijol 1kg", "cajas"),
-                ("P-1003", "Aceite 1L", "cajas"),
-                ("P-1004", "Pasta 500g", "cajas"),
-                ("P-1005", "Azúcar 1kg", "cajas"),
+                ("P-1001", "Chocolate", "cajas"),
+                ("P-1002", "Vainilla", "cajas"),
+                ("P-1003", "Café", "cajas"),
+                ("P-1004", "Fresa", "cajas"),
+                ("P-1005", "Pistache", "cajas"),
             ]
 
             for codigo, nombre, unidad in productos:
@@ -92,7 +112,9 @@ def cargar_datos_ficticios():
                     """
                     INSERT INTO productos (codigo, nombre, unidad)
                     VALUES (%s, %s, %s)
-                    ON CONFLICT (codigo) DO NOTHING
+                    ON CONFLICT (codigo) DO UPDATE SET
+                        nombre = EXCLUDED.nombre,
+                        unidad = EXCLUDED.unidad
                     """,
                     (codigo, nombre, unidad),
                 )
@@ -176,6 +198,7 @@ def cargar_datos_ficticios():
 def main():
     try:
         crear_tablas()
+        actualizar_nombres_productos()
         cargar_datos_ficticios()
     except Exception as exc:  # pragma: no cover
         print(f"Error al preparar la base de datos: {exc}")

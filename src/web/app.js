@@ -1,7 +1,7 @@
 const summaryEls = {
   tiendas: document.getElementById('tiendasValue'),
   productos: document.getElementById('productosValue'),
-  necesidad: document.getElementById('necesidadValue'),
+  inventarioTiendas: document.getElementById('inventarioTiendasValue'),
   bodega: document.getElementById('bodegaValue'),
   faltantes: document.getElementById('faltantesValue'),
 };
@@ -9,6 +9,7 @@ const summaryEls = {
 const pedidosTableBody = document.getElementById('pedidosTableBody');
 const bodegaTableBody = document.getElementById('bodegaTableBody');
 const refreshButton = document.getElementById('refreshButton');
+const downloadExcelButton = document.getElementById('downloadExcelButton');
 const statusBanner = document.getElementById('statusBanner');
 const chatForm = document.getElementById('chatForm');
 const chatInput = document.getElementById('chatInput');
@@ -46,10 +47,8 @@ function renderSummary(dashboardData) {
 
   summaryEls.tiendas.textContent = formatNumber(resumen.tiendas || 0);
   summaryEls.productos.textContent = formatNumber(resumen.productos || 0);
+  summaryEls.inventarioTiendas.textContent = formatNumber(resumen.inventario_tiendas || 0);
 
-  const necesidadTotal = productoResumen.reduce((sum, item) => {
-    return sum + Number(item['Necesidad total de las tiendas'] || 0);
-  }, 0);
   const inventarioBodega = productoResumen.reduce((sum, item) => {
     return sum + Number(item['Inventario disponible en bodega'] || 0);
   }, 0);
@@ -57,9 +56,85 @@ function renderSummary(dashboardData) {
     return item['Existe inventario suficiente'] === false;
   }).length;
 
-  summaryEls.necesidad.textContent = formatNumber(necesidadTotal);
   summaryEls.bodega.textContent = formatNumber(inventarioBodega || resumen.inventario_bodega || 0);
   summaryEls.faltantes.textContent = formatNumber(productosConFaltantes);
+}
+
+function renderBarChart(containerId, data, valueKey, labelKey) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.innerHTML = '<div class="empty-state">Sin datos disponibles.</div>';
+    return;
+  }
+
+  const maxValue = Math.max(...data.map((item) => Number(item[valueKey] || 0)), 1);
+
+  const fragment = document.createDocumentFragment();
+
+  data.forEach((item) => {
+    const label = item[labelKey] || '--';
+    const value = Number(item[valueKey] || 0);
+    const width = Math.max((value / maxValue) * 100, 8);
+
+    const row = document.createElement('div');
+    row.className = 'chart-row';
+
+    const chartLabel = document.createElement('div');
+    chartLabel.className = 'chart-label';
+
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = String(label);
+
+    const valueStrong = document.createElement('strong');
+    valueStrong.textContent = formatNumber(value);
+
+    chartLabel.appendChild(labelSpan);
+    chartLabel.appendChild(valueStrong);
+
+    const track = document.createElement('div');
+    track.className = 'chart-track';
+
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar';
+    bar.style.width = `${width}%`;
+
+    track.appendChild(bar);
+    row.appendChild(chartLabel);
+    row.appendChild(track);
+    fragment.appendChild(row);
+  });
+
+  container.innerHTML = '';
+  container.appendChild(fragment);
+}
+
+function renderInventoryCharts(reposicionData) {
+  const resumenProducto = reposicionData?.resumen_por_producto || [];
+  const detalleTienda = reposicionData?.detalle_por_tienda || [];
+
+  const flavorData = resumenProducto.map((item) => ({
+    Producto: item.Producto || '--',
+    'Inventario disponible en bodega': Number(item['Inventario disponible en bodega'] || 0),
+  }));
+
+  const storeMap = {};
+  detalleTienda.forEach((item) => {
+    const tienda = item.Tienda || '--';
+    const cantidad = Number(item['Inventario actual'] || 0);
+    storeMap[tienda] = (storeMap[tienda] || 0) + cantidad;
+  });
+
+  const storeData = Object.entries(storeMap).map(([tienda, cantidad]) => ({
+    Tienda: tienda,
+    cantidad,
+  }));
+
+  renderBarChart('inventoryByFlavorChart', flavorData, 'Inventario disponible en bodega', 'Producto');
+  renderBarChart('inventoryByStoreChart', storeData, 'cantidad', 'Tienda');
 }
 
 function renderPedidosSugeridos(detalle) {
@@ -142,6 +217,7 @@ async function loadDashboard() {
     renderSummary(mergedData);
     renderPedidosSugeridos(mergedData.reposicion.detalle_por_tienda);
     renderBodega(mergedData.reposicion.resumen_por_producto);
+    renderInventoryCharts(mergedData.reposicion);
 
     showStatus('Datos actualizados correctamente.', 'success');
   } catch (error) {
@@ -220,6 +296,37 @@ chatInput.addEventListener('keydown', (event) => {
   }
 });
 
+async function downloadExcelReport() {
+  try {
+    showStatus('Generando reporte Excel...', 'success');
+    const response = await fetch('/api/reporte-excel');
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'No se pudo generar el reporte Excel.');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    link.href = url;
+    link.download = `Reporte_Gelato_Supply_Chain_${dateStamp}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    showStatus('Reporte Excel descargado correctamente.', 'success');
+  } catch (error) {
+    console.error(error);
+    showStatus('No se pudo descargar el reporte Excel.', 'error');
+  }
+}
+
 refreshButton.addEventListener('click', loadDashboard);
+if (downloadExcelButton) {
+  downloadExcelButton.addEventListener('click', downloadExcelReport);
+}
 
 loadDashboard();
