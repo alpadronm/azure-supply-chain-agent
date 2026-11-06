@@ -1,4 +1,4 @@
-# Gelato Supply Chain
+# Proyecto Fase 2 - Gelato Supply Chain
 
 Azure Supply Chain Agent es una aplicación web que utiliza inteligencia artificial para facilitar la consulta y el análisis de inventarios dentro de una cadena de tiendas. Su objetivo es ayudar a los usuarios a obtener información sobre las existencias de productos en las tiendas y en bodega, así como apoyar la toma de decisiones relacionadas con el abastecimiento y la reposición de productos.
 
