@@ -1,129 +1,57 @@
-# Azure Supply Chain Agent
+# Gelato Supply Chain
 
-Azure Supply Chain Agent es un prototipo escolar para gestionar inventarios, ventas y reposición de productos en varias tiendas con apoyo de Azure AI Foundry, PostgreSQL y una interfaz web mínima. El objetivo es demostrar una solución fácil de entender y funcional, centrada en cálculos deterministas y en la integración con servicios de Azure.
+Azure Supply Chain Agent es una aplicación web que utiliza inteligencia artificial para facilitar la consulta y el análisis de inventarios dentro de una cadena de tiendas. Su objetivo es ayudar a los usuarios a obtener información sobre las existencias de productos en las tiendas y en bodega, así como apoyar la toma de decisiones relacionadas con el abastecimiento y la reposición de productos.
 
-## Objetivo del proyecto
+La aplicación cuenta con un asistente virtual con el que se puede interactuar mediante preguntas escritas en lenguaje natural, sin necesidad de utilizar consultas técnicas o acceder directamente a la base de datos.
 
-- Consultar inventarios, productos, tiendas y ventas desde PostgreSQL.
-- Calcular la reposición sugerida para la próxima semana.
-- Mostrar resultados reales en un panel web simple.
-- Permitir la consulta a un agente persistente de Azure AI Foundry.
-- Exponer la lógica de negocio a través de un servidor MCP local.
+## ¿Cómo funciona?
 
-## Tecnologías principales
+El usuario ingresa a la aplicación desde un navegador y escribe una pregunta al asistente, por ejemplo, solicitando conocer el inventario de un producto en todas las tiendas.
 
-- Python 3.11+
-- PostgreSQL en Azure Database for PostgreSQL
-- FastAPI para la API y el panel web
-- Azure AI Foundry / Azure AI Projects
-- Azure Identity
-- psycopg para acceso a PostgreSQL
-- MCP Python SDK para el servidor MCP
+Cuando recibe la pregunta, el asistente utiliza inteligencia artificial para interpretar lo que necesita el usuario e identificar qué información debe consultar. Posteriormente, utiliza herramientas conectadas a una base de datos PostgreSQL para obtener los datos correspondientes, tanto de las tiendas como de la bodega.
 
-## Estructura del proyecto
+Una vez que obtiene la información, el asistente procesa los resultados y genera una respuesta en lenguaje natural que se muestra directamente en la aplicación.
 
-- `src/agente/`: integración con Azure AI Foundry y servidor MCP.
-- `src/base_datos/`: conexión y acceso a PostgreSQL.
-- `src/logistica/`: cálculo de reposición y lógica de negocio.
-- `src/api/`: endpoints de la API REST.
-- `src/web/`: interfaz web estática servida por FastAPI.
-- `scripts/`: utilidades para pruebas locales.
-- `salida/`: exportaciones y archivos generados localmente.
+De esta manera, el usuario puede consultar información y obtener respuestas sin tener que revisar manualmente diferentes registros o tablas.
 
-## Requisitos
+## Pruebas de uso
 
-- Python 3.11 o superior
-- PostgreSQL con acceso correcto en Azure
-- Variables de entorno configuradas en un archivo `.env` local
-- Credenciales de Azure autenticadas con `DefaultAzureCredential` o equivalente
-- Dependencias listadas en `requirements.txt`
+- Dashboard/Página principal
+<img width="1894" height="721" alt="Captura de pantalla 2026-11-06 011248" src="https://github.com/user-attachments/assets/f9f0b674-8d2d-4ad2-98ce-a6c80324d9dd" />
 
-## Instalación local
+- Tabla de recomendación para reposición de producto
+<img width="1629" height="827" alt="Captura de pantalla 2026-11-06 011256" src="https://github.com/user-attachments/assets/2c6a9e61-5b61-40f4-b18c-bfddc365d290" />
 
-1. Clona o descarga el proyecto.
-2. Crea un entorno virtual:
+- Tabla de inventario en bodega
+<img width="1625" height="430" alt="Captura de pantalla 2026-11-06 011302" src="https://github.com/user-attachments/assets/6021df8a-ebea-4648-9731-07e7dd5675ad" />
 
-   python -m venv .venv
-   .\.venv\Scripts\activate
+- Cuadro de chat con el agente
+<img width="1621" height="392" alt="Captura de pantalla 2026-11-06 011311" src="https://github.com/user-attachments/assets/6e6f0460-9cbc-4520-966f-143adc3841b4" />
 
-3. Instala dependencias:
+- Consulta de stock por producto disponible en tienda
+<img width="1594" height="393" alt="Captura de pantalla 2026-11-06 012515" src="https://github.com/user-attachments/assets/bf95b5ba-f380-4eac-86f1-2089e950158f" />
 
-   python -m pip install --upgrade pip
-   python -m pip install -r requirements.txt
+- Consulta de próximas reposiciones a realizarse
+<img width="1593" height="588" alt="Captura de pantalla 2026-11-06 013211" src="https://github.com/user-attachments/assets/d84b7a74-2e59-42b9-9b6b-6e58160886c7" />
+<img width="1601" height="593" alt="Captura de pantalla 2026-11-06 013218" src="https://github.com/user-attachments/assets/ab715870-5fc7-4785-bda3-0490e1fdf914" />
 
-4. Crea un archivo `.env` local basado en el ejemplo:
+- Descarga de documento de Excel con el resumen de las tablas
+<img width="1919" height="982" alt="Captura de pantalla 2026-11-06 013643" src="https://github.com/user-attachments/assets/abbd768d-1aca-4f7e-b231-eb72a61ca250" />
+<img width="1915" height="1015" alt="Captura de pantalla 2026-11-06 013659" src="https://github.com/user-attachments/assets/646b5427-9438-45fb-b963-e17841f93991" />
 
-   Copy-Item .env.example .env
+Estos son algunos de los ejemplos con los que puede ayudar esta herramienta para la gestión logística.
 
-5. Ajusta los valores de tu entorno local en `.env`.
+## Tecnologías usadas
+- Python: lenguaje utilizado para desarrollar la lógica de la aplicación.
 
-## Configuración de entorno
+- FastAPI: encargado de recibir las solicitudes y comunicar la interfaz con el agente.
 
-El proyecto usa variables de entorno para PostgreSQL, Azure AI Foundry y el servidor MCP. Consulta [.env.example](./.env.example) como referencia. No compartas ni publiques valores reales.
+- Azure AI Foundry: plataforma utilizada para crear e integrar el asistente de inteligencia artificial.
 
-Variables principales:
+- GPT-4.1-mini: modelo de inteligencia artificial que interpreta las preguntas y genera las respuestas.
 
-- `POSTGRES_HOST`
-- `POSTGRES_PORT`
-- `POSTGRES_DB`
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-- `AZURE_PROJECT_ENDPOINT`
-- `AZURE_AGENT_NAME`
-- `AZURE_MODEL_NAME`
-- `AZURE_TENANT_ID`
-- `AZURE_CLIENT_ID`
-- `AZURE_CLIENT_SECRET`
-- `MCP_API_KEY`
-- `CORS_ALLOWED_ORIGINS`
-- `PORT`
-- `LOG_LEVEL`
+- PostgreSQL: base de datos donde se almacena la información de inventarios.
 
-## Ejecución local
+- Docker: utilizado para empaquetar la aplicación y facilitar su despliegue.
 
-### API y panel web
-
-Desde la raíz del proyecto:
-
-   python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
-
-Luego abre la siguiente URL en el navegador:
-
-   http://localhost:8000/
-
-### Servidor MCP
-
-   python src\agente\mcp_server.py --transport streamable-http
-
-El servidor expone la herramienta `calcular_reposicion` y requiere autenticación Bearer mediante `MCP_API_KEY`.
-
-## Estado actual
-
-Este repositorio contiene una primera versión funcional del prototipo con:
-
-- conexión a PostgreSQL,
-- cálculo determinista de reposición,
-- API FastAPI,
-- dashboard web básico,
-- integración inicial con Azure AI Foundry,
-- y un servidor MCP local para la herramienta de cálculo.
-
-No se incluyen funcionalidades de transporte, GPS, optimización avanzada ni despliegue multi-servicio; este proyecto sigue siendo un prototipo pequeño y comprensible.
-
-## Seguridad y buenas prácticas
-
-- Los secretos nunca deben guardarse en el código fuente.
-- El archivo `.env` local debe mantenerse fuera del control de versiones.
-- `.env.example` sirve únicamente como plantilla y no debe contener valores reales.
-- Los reportes generados y archivos temporales se manejan localmente y no deben compartirse sin revisar su contenido.
-
-## Arquitectura general
-
-La solución actual se compone de cuatro piezas principales:
-
-1. PostgreSQL para almacenamiento de datos operativos.
-2. Lógica de negocio en Python para cálculos de reposición y validación.
-3. FastAPI para la API y la interfaz web mínima.
-4. Azure AI Foundry para la integración del agente y la consulta del usuario.
-
-Este diseño busca mantener la implementación simple, la lógica verificable y la operación accesible para un prototipo académico o de equipo pequeño.
+- Azure Container Apps: servicio de Microsoft Azure donde se encuentra alojada la aplicación.
