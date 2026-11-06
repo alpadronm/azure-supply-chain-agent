@@ -14,7 +14,10 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from src.agente.foundry_integration import ejecutar_calculo_reposicion
+from src.agente.foundry_integration import (
+    ejecutar_calculo_reposicion,
+    invoke_agent_with_inventory_tools,
+)
 from src.base_datos.conexion import get_connection
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -332,17 +335,12 @@ def chat(payload: Dict[str, Any]) -> Dict[str, Any]:
     )
 
     try:
-        with _get_foundry_project_client() as project_client:
-            openai_client = project_client.get_openai_client(agent_name="supply-chain-planner")
-            request_kwargs: Dict[str, Any] = {
-                "input": message,
-            }
-            if session.get("last_response_id"):
-                request_kwargs["previous_response_id"] = session["last_response_id"]
-
-            response = openai_client.responses.create(**request_kwargs)
-            response_text = _response_text_from_foundry(response)
-            session["last_response_id"] = getattr(response, "id", None)
+        response = invoke_agent_with_inventory_tools(
+            prompt=message,
+            previous_response_id=session.get("last_response_id"),
+        )
+        response_text = _response_text_from_foundry(response)
+        session["last_response_id"] = getattr(response, "id", None)
 
     except Exception as exc:
         raise HTTPException(
